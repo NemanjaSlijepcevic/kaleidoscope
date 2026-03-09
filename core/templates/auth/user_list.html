@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %} 
+{% load i18n %}
+
+{% block content %}
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-primary">
+            <tr>
+                <th scope="col"><span id="broj">#</span></th>
+                <th scope="col"><span id="korisnik">{% trans "User" %}</span></th>
+                <th scope="col"><span id="mejl">{% trans "email" %}</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                {% if request.user.is_superuser %}
+                    <td><a href="{% url 'users:user-update' object.pk %}">{{ object.username }}</a></td>
+                {% else %}
+                    <td>{{ object.username }}</td>
+                {% endif %}
+                <td>{{ object.email }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

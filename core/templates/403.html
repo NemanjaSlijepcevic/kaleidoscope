@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="display-1 text-danger" style="font-size: 10rem;">403</h1>
+    <p class="lead">{% trans 'You shall not pass!' %}</p>
+    <p>{% trans 'The content you are trying access does not exists for you so please:' %}</p>
+    <a href="{% url 'images:image-list' %}" class="btn btn-secondary btn-lg mt-4">{% trans 'Go Home' %}</a>
+</div>
+{% endblock %}

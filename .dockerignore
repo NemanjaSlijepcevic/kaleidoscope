@@ -1,0 +1,38 @@
+Pipfile
+Pipfile.lock
+*.md
+.flake8
+
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+venv/
+.env/
+.venv/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore Git files
+.git
+.gitignore
+.github/
+
+# Ignore IDE/editor configs
+.vscode/
+.idea/
+
+# Ignore Docker-related files (if unnecessary in the image)
+.dockerignore
+docker-compose.yml
+
+# Ignore large or sensitive files
+data/
+logs/
+*.log
+media/
+staticfiles/

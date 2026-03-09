@@ -1,0 +1,63 @@
+#id_title{
+    width: 100% !important;
+    max-width: 600px;
+    height: 38px !important;
+    padding: 6px 12px;
+    border: 2px solid #ced4da !important;
+    border-radius: 0.375rem;
+    box-shadow: none !important;
+    background-color: #fff;
+}
+
+.form-control,
+.form-select,
+.select2-container {
+    width: 100% !important;
+    max-width: 600px;
+    border: 1px solid #ced4da !important;
+    border-radius: 0.375rem;
+    box-shadow: none !important;
+    background-color: #fff;
+}
+
+.select2-container .select2-selection {
+    height: 38px !important;
+    padding: 6px 12px;
+}
+.select2-selection {
+    display: flex !important;
+    align-items: center !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 0.375rem !important;
+    height: calc(2.25rem + 2px) !important;
+}
+.select2-selection__arrow {
+    display: none !important;
+}
+.select2-selection__clear {
+    float: right;
+    margin-left: 10px 
+}
+.select2-selection--multiple {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 38px;
+}
+.select2-selection__rendered {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1.5rem !important; 
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+}
+
+.select2-selection__choice {
+    margin-top: 3px !important;
+    margin-bottom: 3px !important;
+}
+
+.form-label {
+    margin-bottom: 5px; /* Adds spacing between label and input */
+    font-weight: bold;
+}

@@ -1,0 +1,57 @@
+{% load i18n %}
+{% load permission_filters %}
+
+<nav id="navbar" class="navbar bg-primary navbar-expand-lg mb-5" data-bs-theme="dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'images:image-list' %}">{% trans "Kaleidoscope gallery" %}</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        {% if request.user.is_authenticated %}
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="btn btn-primary" aria-current="page" href="{% url 'images:image-list' %}">{% trans "List" %}</a>
+          </li>
+          {% if user|in_group:"Add" %}
+          <li class="nav-item">
+            <a class="btn btn-primary" href="{% url 'images:image-create' %}">{% trans "Add" %}</a>
+          </li>
+          {% endif %}
+          {% if request.user.is_superuser %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% trans "Users" %}
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'users:user-list' %}">{% trans "List" %}</a></li>
+                <li><a class="dropdown-item" href="{% url 'users:user-create' %}">{% trans "Add" %}</a></li>
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="btn btn-primary" href="{% url 'users:user-update' pk=request.user.pk %}">{% trans "Settings" %}</a>
+            </li>
+          {% endif %}
+          <li class="nav-item">
+            <form action="{% url 'users:user-logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary">{% trans "Logout" %}</button>
+          </form>
+          </li>
+        </ul>
+        {% endif %}
+        <span class="navbar-text">
+          {% trans "Greatest list of images relevant for Gacko" %}
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <script>
+    window.onload = function() {
+      if (window.top !== window.self) {
+        document.getElementById("navbar").style.display = "none";
+      }
+    };
+  </script>

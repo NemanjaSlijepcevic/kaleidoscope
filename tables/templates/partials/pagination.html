@@ -1,0 +1,13 @@
+{% load i18n %}
+<div class="d-flex p-1">
+    <nav aria-label="Page navigation" class="me-1">
+        <select name="paginate_by" id="paginateBy" class="form-select w-auto">
+            <option value="10">10</option>
+            <option selected="selected" value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="all">{% trans "All" %}</option>
+        </select>
+    </nav>
+    <ul class="pagination" id="pagination-container"></ul>
+</div>

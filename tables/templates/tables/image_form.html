@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load permission_filters %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/form.css' %}">
+    <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+  {{ form.media }}
+{% endblock %}
+{% block content %}
+<h4>{% if is_create %}{% trans "Create image" %}{% else %}{% trans "Edit image" %}{% endif %}</h4>
+<div class="pt-2">
+    <form method="POST" class="mb-3" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+        <div class="field-wrapper">
+            <p><label for="{{ field.id_for_label }}"><b>{{ field.label }}</b></label></p>
+            <p>{{ field }}</p>
+            {% if field.errors %}
+            <div class="alert alert-danger">
+                {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        </div>
+        {% endfor %}
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+            {% if not is_create and user|in_group:"Delete" %}
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                {% trans "Delete" %}
+            </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% if not is_create %}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">{% trans "Confirm delete" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% blocktrans %}Are you sure you want to delete {% endblocktrans %} "{{object.title}}"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "No" %}</button>
+                <button type="button" id="confirmDelete" class="btn btn-danger">{% trans "Yes" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('confirmDelete').addEventListener('click', function () {
+        const deleteUrl = `{% url 'images:image-delete' pk=object.pk %}`;
+        fetch(deleteUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = "{% url 'images:image-list' %}";
+            } else {
+                return response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting image:', error);
+            alert('Failed to delete the image. Please try again.');
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}
