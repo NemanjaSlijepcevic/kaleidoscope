@@ -1,12 +1,13 @@
 ARG PYTHON_VERSION=3.13-alpine
 FROM python:${PYTHON_VERSION} AS builder
 
+# Prevent .pyc files & enable unbuffered output
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install build dependencies (needed for Pillow and similar packages)
+# Install build dependencies for packages like Pillow
 RUN apk add --no-cache \
     gcc \
     musl-dev \
@@ -18,18 +19,25 @@ RUN apk add --no-cache \
     tiff-dev \
     tk-dev \
     tcl-dev \
-    libffi-dev
+    libffi-dev \
+    gettext-dev \
+    gettext
 
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENV DJANGO_SETTINGS_MODULE=kaleidoscope.settings
+RUN python manage.py compilemessages
 
 FROM python:${PYTHON_VERSION}
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install runtime libraries + gettext
+WORKDIR /app
+
 RUN apk add --no-cache \
     jpeg \
     zlib \
@@ -37,21 +45,17 @@ RUN apk add --no-cache \
     lcms2 \
     openjpeg \
     tiff \
-    gettext
+    gettext \
+    bash
 
-WORKDIR /app
-
-# Copy installed Python packages from builder
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
-# Copy project files
-COPY . .
+COPY --from=builder /app /app
 
-# Compile static files and translations
-RUN python manage.py collectstatic --noinput && \
-    python manage.py compilemessages
+ENV DJANGO_SETTINGS_MODULE=kaleidoscope.settings
 
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "kaleidoscope.wsgi:application"]
+CMD python manage.py collectstatic --noinput && \
+    gunicorn --bind 0.0.0.0:8000 --workers 3 kaleidoscope.wsgi:application
