@@ -17,11 +17,23 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
+from django.http import HttpResponse
+from django.urls import path, include, re_path
 from django.views.generic.base import RedirectView
+from django.views.static import serve
+
+
+def healthcheck(request):
+    # Liveness endpoint for Docker healthchecks from other containers on the
+    # network. Deliberately does not touch the database so a transiently busy DB
+    # doesn't mark the container unhealthy. The calling host must be in
+    # ALLOWED_HOSTS (see INTERNAL_HOSTS in settings) or Django answers 400.
+    return HttpResponse("ok", content_type="text/plain")
+
 
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='users:user-login')),
+    path('healthz/', healthcheck, name='healthz'),
     path('admin/', admin.site.urls),
     path('images/', include('tables.urls')),
     path('users/', include('core.urls')),
@@ -34,3 +46,15 @@ if settings.DEBUG:
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # In production Django's static() helper serves nothing (it only works under
+    # DEBUG), so serve the imagekit-generated derived images ourselves. Scope this
+    # to /media/CACHE/ only: original uploads under /media/gallery/ must stay
+    # unreachable, since the watermark exists precisely so originals aren't served.
+    urlpatterns += [
+        re_path(
+            r'^media/CACHE/(?P<path>.*)$',
+            serve,
+            {'document_root': settings.MEDIA_ROOT / 'CACHE'},
+        ),
+    ]

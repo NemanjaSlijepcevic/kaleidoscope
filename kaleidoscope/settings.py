@@ -42,6 +42,10 @@ if EXTRA_DOMAIN != '':
     ALLOWED_HOSTS += [EXTRA_DOMAIN]
     X_FRAME_OPTIONS = f"ALLOW-FROM https://{EXTRA_DOMAIN}/"
 
+INTERNAL_HOSTS = getenv('INTERNAL_HOSTS', '')
+if INTERNAL_HOSTS:
+    ALLOWED_HOSTS += [host.strip() for host in INTERNAL_HOSTS.split(',') if host.strip()]
+
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/images/'
 LOGOUT_REDIRECT_URL = '/images/'
@@ -147,6 +151,12 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 STORAGES = {
+    # Setting STORAGES replaces the whole dict (no merge with Django's defaults),
+    # so the "default" file-storage backend must be declared explicitly or every
+    # uploaded-file access raises InvalidStorageError.
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
