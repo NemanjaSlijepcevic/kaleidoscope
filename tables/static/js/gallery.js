@@ -66,8 +66,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Debounced: without this every keystroke fires a full gallery request.
+    let searchTimer;
     searchTextInput.addEventListener("input", function () {
-        fetchAndRenderImages(1);
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => fetchAndRenderImages(1), 300);
     });
 
     categoryCheckboxes.forEach((checkbox) => {
@@ -141,11 +144,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateGallery(images, can_edit) {
         currentImages = images;
         resultContainer.innerHTML = images.length
-            ? images.map((image) => 
+            ? images.map((image, index) =>
                 `
                 <div class="col">
                     <div class="card h-100">
-                        ${image.thumbnail_url ? `<img src="${image.thumbnail_url}" class="card-img-top js-lightbox" alt="${image.title}" data-index="${images.indexOf(image)}">` : ""}
+                        ${image.thumbnail_url ? `<img src="${image.thumbnail_url}" class="card-img-top js-lightbox" alt="${image.title}" data-index="${index}" loading="lazy" decoding="async" width="360" height="360">` : ""}
                         <div class="card-body">
                             <h6 class="card-title">${can_edit ? `<a href="${image.detail_url}">${image.title}</a>` : image.title}</h6>
                             <p class="card-text mb-1">${image.authors.join(", ")}</p>

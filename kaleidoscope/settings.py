@@ -151,9 +151,6 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 STORAGES = {
-    # Setting STORAGES replaces the whole dict (no merge with Django's defaults),
-    # so the "default" file-storage backend must be declared explicitly or every
-    # uploaded-file access raises InvalidStorageError.
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
@@ -162,6 +159,14 @@ STORAGES = {
     },
 }
 
+IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': MEDIA_ROOT / '.imagekit-cache',
+    }
+}
 
 IMAGE_WATERMARK_TEXT = getenv("IMAGE_WATERMARK_TEXT", "Klub Gacana")
 IMAGE_WATERMARK_OPACITY = int(getenv("IMAGE_WATERMARK_OPACITY", "50"))

@@ -69,7 +69,6 @@
     </div>
 </div>
 
-{% include 'partials/pagination.html' %}
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3" id="image-gallery"></div>
 
 <div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true">
@@ -102,6 +101,14 @@
 
     window.addEventListener("load", sendHeight);
     window.addEventListener("resize", sendHeight);
-    setInterval(sendHeight, 500);
+
+    // Event-driven instead of a polling timer: reading scrollHeight forces a
+    // layout, and doing it on an interval reflowed the page twice a second for
+    // as long as it stayed open.
+    if (window.ResizeObserver) {
+        new ResizeObserver(sendHeight).observe(document.body);
+    } else {
+        setInterval(sendHeight, 500);
+    }
 </script>
 {% endblock %}

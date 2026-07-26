@@ -103,7 +103,8 @@ class ImageDeleteView(LoginRequiredMixin, UserPassesGroupTest, DeleteView):
 
 class ImageListView(ListView):
     model = Image
-    paginate_by = 25
+    # Matches the default option in partials/pagination.html.
+    paginate_by = 24
 
     def get_queryset(self):
         queryset = Image.objects.all()
@@ -141,10 +142,11 @@ class ImageListView(ListView):
         sort_column = self.request.GET.get("sort", "id")
         order = self.request.GET.get("order", "asc")
         sort_mapping = {
+            "id": "id",
             "author": "author__name",
             "title": "title",
             "place": "place__name",
-            "year": "year",
+            "year": "year__name",
             "category": "category__name"
         }
 
@@ -163,7 +165,7 @@ class ImageListView(ListView):
     def get(self, request, *args, **kwargs):
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             images = self.get_queryset()
-            paginate_by = request.GET.get("paginate_by", "10")
+            paginate_by = request.GET.get("paginate_by", str(self.paginate_by))
             login = request.user.is_authenticated
 
             if paginate_by == "all":

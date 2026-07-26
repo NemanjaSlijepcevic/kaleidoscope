@@ -1,4 +1,10 @@
 *.jpg
+
+# Generated at runtime / build time
+staticfiles/
+media/CACHE/
+media/.imagekit-cache/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

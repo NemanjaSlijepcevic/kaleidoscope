@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from imagekit.models import ImageSpecField
-from imagekit.processors import ResizeToFill, Transpose
+from imagekit.processors import ResizeToFill, ResizeToFit, Transpose
 from .imagekit_processors import TextWatermark
 
 
@@ -51,9 +51,6 @@ class Image(models.Model):
     title = models.CharField(max_length=80)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='gallery/')
-    # Transpose() first auto-orients from the EXIF Orientation tag; phone photos
-    # otherwise render 90° rotated in the derived images (the raw pixels are in the
-    # sensor's orientation and only the EXIF tag says how to rotate them).
     thumbnail = ImageSpecField(
         source='image',
         processors=[Transpose(), ResizeToFill(360, 360)],
@@ -62,9 +59,9 @@ class Image(models.Model):
     )
     watermarked = ImageSpecField(
         source='image',
-        processors=[Transpose(), TextWatermark()],
+        processors=[Transpose(), ResizeToFit(1600, 1600), TextWatermark()],
         format='JPEG',
-        options={'quality': 90}
+        options={'quality': 85}
     )
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True, db_index=True)
     year = models.ForeignKey(Year, on_delete=models.SET_NULL, null=True, blank=True, db_index=True)
