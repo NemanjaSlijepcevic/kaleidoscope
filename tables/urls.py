@@ -8,6 +8,7 @@ from .views import (
     ImageDeleteView,
     ImageListView,
     ImageUpdateView,
+    ImageWatermarkedView,
 )
 
 
@@ -32,6 +33,11 @@ urlpatterns = [
         '<int:pk>/update/',
         ImageUpdateView.as_view(),
         name='image-update'
+    ),
+    path(
+        '<int:pk>/watermarked/',
+        ImageWatermarkedView.as_view(),
+        name='image-watermarked'
     ),
     path(
         'author-autocomplete/',

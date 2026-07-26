@@ -26,7 +26,18 @@ class TextWatermark:
 
         # Start with a default size and scale up/down to match target_height
         font_size = 1
-        font = ImageFont.truetype(font_path, font_size)
+        try:
+            font = ImageFont.truetype(font_path, font_size)
+        except OSError as exc:
+            # Failing here means every watermarked image silently 404s, and the
+            # cause ("cannot open resource") gives no hint which resource. Don't
+            # fall back to an unwatermarked image: the watermark is the reason
+            # originals aren't served in the first place.
+            raise OSError(
+                f"Watermark font not found at {font_path!r}. The font lives under "
+                f"MEDIA_ROOT, which .dockerignore excludes, so a container needs "
+                f"either a mounted media/fonts/ or a WATERMARK_FONT_PATH override."
+            ) from exc
 
         # Quickly approximate the correct font size
         # We use font.getbbox to get the precise dimensions of the rendered text

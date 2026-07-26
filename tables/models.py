@@ -59,7 +59,7 @@ class Image(models.Model):
     )
     watermarked = ImageSpecField(
         source='image',
-        processors=[Transpose(), ResizeToFit(1600, 1600), TextWatermark()],
+        processors=[Transpose(), ResizeToFit(1600, 1600, upscale=False), TextWatermark()],
         format='JPEG',
         options={'quality': 85}
     )

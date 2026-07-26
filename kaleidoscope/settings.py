@@ -159,8 +159,15 @@ STORAGES = {
     },
 }
 
-IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
+# Build derived images when the source is saved, so page requests normally do no
+# image work at all, but still regenerate anything missing on access so a gap in
+# the cache repairs itself instead of showing a broken image forever. See the
+# module docstring for why neither imagekit built-in fits on its own.
+IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'tables.imagekit_strategies.GenerateOnSaveAndDemand'
 
+# imagekit memoises "does this cache file exist?" in the default cache. Django's
+# fallback LocMemCache is per-process and lost on restart, so each gunicorn
+# worker would keep re-running the storage stat calls.
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',

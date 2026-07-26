@@ -1,15 +1,17 @@
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.db.models import Q, Prefetch
-from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.http import Http404, JsonResponse, HttpRequest, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     CreateView,
     DeleteView,
     ListView,
-    UpdateView
+    UpdateView,
+    View
 )
 from .forms import ImageForm
 from .models import (
@@ -101,6 +103,23 @@ class ImageDeleteView(LoginRequiredMixin, UserPassesGroupTest, DeleteView):
         return super().dispatch(request, *args, **kwargs)
 
 
+class ImageWatermarkedView(View):
+    """Redirect to an image's watermarked derivative.
+
+    The lightbox points here instead of straight at the derived file so that the
+    expensive full-size render happens only for images a user actually opens,
+    and so a derivative that is missing for any reason is generated on the spot
+    rather than 404ing. Only ever exposes the watermarked version — the original
+    upload stays unreachable.
+    """
+
+    def get(self, request, pk):
+        image = get_object_or_404(Image, pk=pk)
+        if not image.image:
+            raise Http404("Image has no source file")
+        return redirect(image.watermarked.url)
+
+
 class ImageListView(ListView):
     model = Image
     # Matches the default option in partials/pagination.html.
@@ -182,7 +201,14 @@ class ImageListView(ListView):
                 {
                     "id": image.pk,
                     "title": image.title,
-                    "image_url": image.watermarked.url if image.image else "",
+                    # A redirect endpoint rather than the derived file's URL:
+                    # touching image.watermarked.url here would resolve — and,
+                    # if missing, render — a full-size watermark for every card
+                    # on the page, when at most one is ever opened.
+                    "image_url": (
+                        reverse("images:image-watermarked", args=[image.pk])
+                        if image.image else ""
+                    ),
                     "thumbnail_url": image.thumbnail.url if image.image else "",
                     "description": image.description,
                     "authors": [author.name for author in image.author.all()],
