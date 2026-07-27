@@ -155,7 +155,10 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # Subclass of WhiteNoise's storage that also hashes ES module imports,
+        # so gallery.js and the pagination.js it imports are cache-busted as a
+        # pair rather than independently. See kaleidoscope/storage.py.
+        "BACKEND": "kaleidoscope.storage.JsModuleManifestStaticFilesStorage",
     },
 }
 
