@@ -14,6 +14,29 @@
     display: none !important;
 }
 
+/* Scale the opened picture down until it fits whichever of the viewport's two
+   dimensions runs out first, so the whole image is always visible. Bootstrap's
+   w-100 forced the width to the modal's, which left tall portrait photos
+   running off the top and bottom of the screen. Small pictures are shown at
+   their own size rather than being blown up. */
+#imageLightbox .modal-dialog {
+    width: fit-content;
+    max-width: 96vw;
+}
+
+#imageLightbox .modal-body {
+    display: flex;
+    justify-content: center;
+}
+
+#lightboxImage {
+    width: auto;
+    height: auto;
+    max-width: 96vw;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
 #imageLightbox .carousel-control-prev,
 #imageLightbox .carousel-control-next {
     width: 3rem;

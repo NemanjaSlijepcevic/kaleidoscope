@@ -1,7 +1,11 @@
 {% load i18n %}
+{% comment %}
+Rendered both above and below the gallery, so it uses classes rather than ids
+and gallery.js drives every copy on the page at once.
+{% endcomment %}
 <div class="d-flex p-1">
-    <nav aria-label="Page navigation" class="me-1">
-        <select name="paginate_by" id="paginateBy" class="form-select w-auto">
+    <nav aria-label="{% trans "Page navigation" %}" class="me-1">
+        <select name="paginate_by" class="form-select w-auto js-paginate-by">
             <option value="12">12</option>
             <option selected="selected" value="24">24</option>
             <option value="48">48</option>
@@ -9,5 +13,5 @@
             <option value="all">{% trans "All" %}</option>
         </select>
     </nav>
-    <ul class="pagination" id="pagination-container"></ul>
+    <ul class="pagination js-pagination"></ul>
 </div>

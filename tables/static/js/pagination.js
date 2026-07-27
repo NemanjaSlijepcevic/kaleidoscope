@@ -1,76 +1,66 @@
-export function updatePagination(paginationContainer, hasNext, currentPage, totalPages) { 
-    paginationContainer.innerHTML = "";
+const pageItem = (page, label, active) => `
+    <li class="page-item ${active ? "active" : ""}">
+        <a class="page-link" href="#" data-page="${page}">${label}</a>
+    </li>
+`;
 
-    if (document.getElementById("paginateBy").value === "all") return;
+const ellipsis = () => `
+    <li class="page-item">
+        <button type="button" class="page-link js-show-all-pages">&hellip;</button>
+    </li>
+`;
 
-    const prevPage = currentPage > 1 ? currentPage - 1 : null;
-    const nextPage = hasNext ? currentPage + 1 : null;
-    const showAllButtonId = "showAllPages"; 
-    const showAll = paginationContainer.dataset.showAll === "true";
+/**
+ * Render the page links into every pagination bar on the page.
+ *
+ * There is one bar above the gallery and one below it, so the markup is built
+ * once and written to all of them: they always show the same state, and neither
+ * copy owns ids that the other would duplicate. `showAll` lives in the caller
+ * rather than on a container's dataset so expanding one bar expands both.
+ */
+export function updatePagination(containers, hasNext, currentPage, totalPages, options = {}) {
+    const bars = Array.from(containers);
+    const { showAll = false, paginateBy } = options;
 
-    if (prevPage) {
-        paginationContainer.innerHTML += `
-            <li class="page-item">
-                <a class="page-link" href="#" data-page="${prevPage}">&lsaquo;</a>
-            </li>
-        `;
+    if (paginateBy === "all") {
+        bars.forEach((bar) => { bar.innerHTML = ""; });
+        return;
     }
 
-    paginationContainer.innerHTML += `
-        <li class="page-item ${currentPage === 1 ? "active" : ""}">
-            <a class="page-link" href="#" data-page="1">1</a>
-        </li>
-    `;
+    const items = [];
+    const prevPage = currentPage > 1 ? currentPage - 1 : null;
+    const nextPage = hasNext ? currentPage + 1 : null;
+
+    if (prevPage) {
+        items.push(pageItem(prevPage, "&lsaquo;", false));
+    }
+
+    items.push(pageItem(1, 1, currentPage === 1));
 
     if (showAll || totalPages <= 7) {
         for (let i = 2; i < totalPages; i++) {
-            paginationContainer.innerHTML += `
-                <li class="page-item ${i === currentPage ? "active" : ""}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
-                </li>
-            `;
+            items.push(pageItem(i, i, i === currentPage));
         }
     } else {
         if (currentPage > 4) {
-            paginationContainer.innerHTML += `<li class="page-item"><button id="${showAllButtonId}" class="page-link">...</button></li>`;
+            items.push(ellipsis());
         }
-
         for (let i = Math.max(2, currentPage - 2); i <= Math.min(currentPage + 2, totalPages - 1); i++) {
-            paginationContainer.innerHTML += `
-                <li class="page-item ${i === currentPage ? "active" : ""}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
-                </li>
-            `;
+            items.push(pageItem(i, i, i === currentPage));
         }
-
         if (currentPage < totalPages - 3) {
-            paginationContainer.innerHTML += `<li class="page-item"><button id="${showAllButtonId}" class="page-link">...</button></li>`;
+            items.push(ellipsis());
         }
     }
 
     if (totalPages > 1) {
-        paginationContainer.innerHTML += `
-            <li class="page-item ${currentPage === totalPages ? "active" : ""}">
-                <a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a>
-            </li>
-        `;
+        items.push(pageItem(totalPages, totalPages, currentPage === totalPages));
     }
 
     if (nextPage) {
-        paginationContainer.innerHTML += `
-            <li class="page-item">
-                <a class="page-link" href="#" data-page="${nextPage}">&rsaquo;</a>
-            </li>
-        `;
+        items.push(pageItem(nextPage, "&rsaquo;", false));
     }
 
-    setTimeout(() => {
-        const showAllButton = document.getElementById(showAllButtonId);
-        if (showAllButton) {
-            showAllButton.addEventListener("click", () => {
-                paginationContainer.dataset.showAll = "true";
-                updatePagination(paginationContainer, hasNext, currentPage, totalPages);
-            });
-        }
-    }, 0);
+    const html = items.join("");
+    bars.forEach((bar) => { bar.innerHTML = html; });
 }

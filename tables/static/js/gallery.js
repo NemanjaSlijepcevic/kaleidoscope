@@ -6,8 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const authorSelect = document.getElementById("author-filter");
     const placeSelect = document.getElementById("place-filter");
     const yearSelect = document.getElementById("year-filter");
-    const paginationContainer = document.getElementById("pagination-container");
-    const paginateSelect = document.getElementById("paginateBy");
+    // One pagination bar above the gallery and one below; every copy is kept in
+    // sync rather than one being the "real" one.
+    const paginationContainers = document.querySelectorAll(".js-pagination");
+    const paginateSelects = document.querySelectorAll(".js-paginate-by");
+    let showAllPages = false;
     const searchTextInput = document.querySelector('input[name="search-field"]');
     const resultContainer = document.getElementById("image-gallery");
     const categoryCheckboxes = document.querySelectorAll('input[name="category"]');
@@ -21,11 +24,15 @@ document.addEventListener("DOMContentLoaded", function () {
         : null;
     let currentImages = [];
     let currentIndex = 0;
+    let lastPageState = { hasNext: false, currentPage: 1, totalPages: 1 };
     
-    if (!form || !resultContainer || !authorSelect || !placeSelect || !yearSelect) {
+    if (!form || !resultContainer || !authorSelect || !placeSelect || !yearSelect
+        || !paginateSelects.length) {
         console.error("Missing required form elements!");
         return;
     }
+
+    const pageSize = () => paginateSelects[0].value;
 
     document.querySelectorAll("th[data-sort]").forEach(header => {
         header.addEventListener("click", function () {
@@ -52,18 +59,32 @@ document.addEventListener("DOMContentLoaded", function () {
         fetchAndRenderImages(1);
     });
 
-    paginateSelect.addEventListener("change", function () {
-        fetchAndRenderImages(1);
+    paginateSelects.forEach((select) => {
+        select.addEventListener("change", function () {
+            // Mirror the choice onto the other bar so they never disagree.
+            paginateSelects.forEach((other) => { other.value = this.value; });
+            showAllPages = false;
+            fetchAndRenderImages(1);
+        });
     });
 
-    paginationContainer.addEventListener("click", function (event) {
-        if (event.target.matches(".page-link")) {
-            event.preventDefault();
-            const page = parseInt(event.target.dataset.page);
-            if (!isNaN(page)) {
-                fetchAndRenderImages(page);
+    paginationContainers.forEach((container) => {
+        container.addEventListener("click", function (event) {
+            const showAllButton = event.target.closest(".js-show-all-pages");
+            if (showAllButton) {
+                event.preventDefault();
+                showAllPages = true;
+                renderPagination();
+                return;
             }
-        }
+            if (event.target.matches(".page-link")) {
+                event.preventDefault();
+                const page = parseInt(event.target.dataset.page);
+                if (!isNaN(page)) {
+                    fetchAndRenderImages(page);
+                }
+            }
+        });
     });
 
     // Debounced: without this every keystroke fires a full gallery request.
@@ -84,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
         const params = new URLSearchParams();
         params.set("page", page);
-        params.set("paginate_by", paginateSelect.value);
+        params.set("paginate_by", pageSize());
 
         const searchText = searchTextInput.value.trim();
         if (searchText) {
@@ -120,15 +141,27 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             updateGallery(data.images, data.can_edit);
-            updatePagination(
-                document.getElementById("pagination-container"),
-                data.has_next,
-                data.current_page,
-                data.total_pages
-            );
+            lastPageState = {
+                hasNext: data.has_next,
+                currentPage: data.current_page,
+                totalPages: data.total_pages
+            };
+            renderPagination();
         })
         .catch(error => console.error("Error fetching images:", error))
         .finally(() => hideSpinner());
+    }
+
+    // Kept separate from the fetch so the "..." button can re-render the bars
+    // from the last known state without going back to the server.
+    function renderPagination() {
+        updatePagination(
+            paginationContainers,
+            lastPageState.hasNext,
+            lastPageState.currentPage,
+            lastPageState.totalPages,
+            { showAll: showAllPages, paginateBy: pageSize() }
+        );
     }
 
     function showSpinner() {
