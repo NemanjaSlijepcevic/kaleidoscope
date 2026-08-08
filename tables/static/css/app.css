@@ -1,0 +1,172 @@
+:root {
+    --photo-mount: #cfd5cd;
+    /* The mount is light in both themes, so anything drawn on it needs a text
+     * colour that is dark in both themes too. Without this the alt text of a
+     * broken or still-loading image inherits --ink, which in dark mode is
+     * near-white on a light grey mount: 1.19:1, effectively invisible. */
+    --photo-mount-ink: #151A24;
+    --photo-scrim: rgba(8, 10, 14, 0.72);
+    --photo-scrim-soft: rgba(8, 10, 14, 0.55);
+    --photo-scrim-strong: rgba(8, 10, 14, 0.8);
+}
+
+#image-gallery {
+    display: flex;
+}
+
+#image-gallery.loading {
+    display: none;
+}
+
+/* --- cards -------------------------------------------------------------- */
+
+#image-gallery .card {
+    height: 100%;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 0;
+}
+
+#image-gallery .card:hover {
+    border-color: var(--rule-strong);
+}
+
+/* The neutral mount. Deliberately not var(--stone): it holds the same value
+ * in both themes so a photograph is judged against a constant ground. */
+#image-gallery .card-img-top {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: var(--photo-mount);
+    color: var(--photo-mount-ink);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    border-radius: 0;
+    cursor: zoom-in;
+}
+
+#image-gallery .card-img-top:hover {
+    outline: 2px solid var(--ember);
+    outline-offset: -2px;
+}
+
+#image-gallery .card-body {
+    padding: 0.7rem 0.8rem 0.85rem;
+}
+
+#image-gallery .card-title {
+    margin-bottom: 0.15rem;
+    font-family: var(--font-serif);
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ink);
+}
+
+#image-gallery .card-title a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule-strong);
+}
+
+#image-gallery .card-title a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+#image-gallery .card-text {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--ink-muted);
+}
+
+.kg-empty {
+    padding: 3rem 1rem;
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+}
+
+/* --- lightbox ------------------------------------------------------------
+ * Scale the opened picture down until it fits whichever of the viewport's two
+ * dimensions runs out first, so the whole image is always visible. Bootstrap's
+ * w-100 forced the width to the modal's, which left tall portrait photos
+ * running off the top and bottom of the screen. Small pictures are shown at
+ * their own size rather than being blown up. */
+
+#imageLightbox .modal-dialog {
+    width: fit-content;
+    max-width: 96vw;
+}
+
+#imageLightbox .modal-body {
+    display: flex;
+    justify-content: center;
+}
+
+#lightboxImage {
+    width: auto;
+    height: auto;
+    max-width: 96vw;
+    max-height: 90vh;
+    object-fit: contain;
+    background: var(--photo-mount);
+    color: var(--photo-mount-ink);
+    font-family: var(--font-sans);
+    border: 1px solid var(--rule-strong);
+}
+
+/* The scrim is dark in both themes — it sits over a photograph, so it reads
+ * from the fixed pair rather than the page tokens. */
+#lightboxDescription {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--on-dark);
+    background: var(--photo-scrim);
+}
+
+#imageLightbox .carousel-control-prev,
+#imageLightbox .carousel-control-next {
+    width: 3rem;
+    opacity: 1;
+}
+
+#imageLightbox .carousel-control-prev {
+    left: 0.25rem;
+}
+
+#imageLightbox .carousel-control-next {
+    right: 0.25rem;
+}
+
+#imageLightbox .carousel-control-prev-icon,
+#imageLightbox .carousel-control-next-icon {
+    padding: 1rem;
+    background-color: var(--photo-scrim-soft);
+    background-size: 45%;
+}
+
+#imageLightbox .carousel-control-prev:hover .carousel-control-prev-icon,
+#imageLightbox .carousel-control-next:hover .carousel-control-next-icon {
+    background-color: var(--photo-scrim-strong);
+}
+
+/* --- filters ------------------------------------------------------------ */
+
+.kg-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 575px) {
+    #image-gallery .card-title {
+        font-size: 0.92rem;
+    }
+}

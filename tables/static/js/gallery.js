@@ -185,12 +185,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="card-body">
                             <h6 class="card-title">${can_edit ? `<a href="${image.detail_url}">${image.title}</a>` : image.title}</h6>
                             <p class="card-text mb-1">${image.authors.join(", ")}</p>
-                            <p class="card-text text-muted mb-0">${[image.place, image.year].filter(Boolean).join(" ")}</p>
+                            <p class="card-text mb-0">${[image.place, image.year].filter(Boolean).join(" · ")}</p>
                         </div>
                     </div>
                 </div>
             `).join('')
-            : `<div class="col"><div class="alert alert-info mb-0">${resultContainer.dataset.emptyText || ""}</div></div>`;
+            : `<div class="col-12"><div class="kg-empty">${resultContainer.dataset.emptyText || ""}</div></div>`;
     }
 
     function showLightboxAt(index) {

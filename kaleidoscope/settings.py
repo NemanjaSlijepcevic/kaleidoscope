@@ -42,6 +42,13 @@ if EXTRA_DOMAIN != '':
     ALLOWED_HOSTS += [EXTRA_DOMAIN]
     X_FRAME_OPTIONS = f"ALLOW-FROM https://{EXTRA_DOMAIN}/"
 
+# Origin of the page that embeds this app in an iframe (the Ghost site).
+# Set it and the frame posts its height to that origin instead of "*", and
+# accepts theme/script preferences from it. Left empty the app still works,
+# falling back to "*" - an unset variable must not silently break the
+# height reporting that sizes the iframe.
+EMBED_PARENT_ORIGIN = getenv('EMBED_PARENT_ORIGIN', '').strip()
+
 INTERNAL_HOSTS = getenv('INTERNAL_HOSTS', '')
 if INTERNAL_HOSTS:
     ALLOWED_HOSTS += [host.strip() for host in INTERNAL_HOSTS.split(',') if host.strip()]
@@ -92,6 +99,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.embed',
             ],
         },
     },

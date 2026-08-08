@@ -4,16 +4,16 @@
 {% load static %} 
 {% block content %}
     
-<div class="shadow-none p-3 mb-3 bg-body-tertiary rounded border">
-    <div class="p-2">
+<div class="kg-toolbar">
+    <div>
         <form id="image-search-form" method="get" data-url="{% url 'images:image-list' %}">
-            <label for="search-field" class="form-label h4">{% trans "Search" %}</label>
-            <input class="form-control mt-2" type="text" name="search-field" id="search-field" placeholder="{% trans 'Search images' %}" aria-label="{% trans 'Search images' %}"/>
+            <label for="search-field" class="form-label">{% trans "Search" %}</label>
+            <input class="form-control" type="text" name="search-field" id="search-field" placeholder="{% trans 'Search images' %}" aria-label="{% trans 'Search images' %}"/>
         </form>
     </div>
     
-    <div class="row g-3 p-2">
-        <div class="col-md-4">
+    <div class="kg-filters mt-3">
+        <div>
             <label for="author-filter" class="form-label">{% trans "Author" %}</label>
             <select class="form-select" id="author-filter" name="author">
                 <option value="">{% trans "All" %}</option>
@@ -24,7 +24,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-4">
+        <div>
             <label for="place-filter" class="form-label">{% trans "Place" %}</label>
             <select class="form-select" id="place-filter" name="place">
                 <option value="">{% trans "All" %}</option>
@@ -35,7 +35,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-4">
+        <div>
             <label for="year-filter" class="form-label">{% trans "Year" %}</label>
             <select class="form-select" id="year-filter" name="year">
                 <option value="">{% trans "All" %}</option>
@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <div class="row g-2 p-2">
+    <div class="row g-2 mt-1">
         <div class="col-12">
             <label class="form-label">{% trans "Categories" %}</label>
             <div class="d-flex flex-wrap gap-2">
@@ -96,21 +96,33 @@
 {% block scripts %}
 <script type="module" src="{% static 'js/gallery.js' %}"></script>
 <script>
-    function sendHeight() {
-        const height = document.documentElement.scrollHeight;
-        window.parent.postMessage({ frameHeight: height }, "*");
-    }
+    // Report our height so the embedding Ghost page can size the iframe.
+    // Posting to a concrete origin rather than "*" keeps the message off any
+    // other frame that happens to be listening. When EMBED_PARENT_ORIGIN is
+    // unset we fall back to "*" - the previous behaviour - because an
+    // unconfigured deployment must still get a correctly sized frame.
+    (function () {
+        var target = "{{ embed_parent_origin|escapejs }}" || "*";
+        var last = 0;
 
-    window.addEventListener("load", sendHeight);
-    window.addEventListener("resize", sendHeight);
+        function sendHeight() {
+            var height = document.documentElement.scrollHeight;
+            if (height === last) { return; }
+            last = height;
+            window.parent.postMessage({ frameHeight: height }, target);
+        }
 
-    // Event-driven instead of a polling timer: reading scrollHeight forces a
-    // layout, and doing it on an interval reflowed the page twice a second for
-    // as long as it stayed open.
-    if (window.ResizeObserver) {
-        new ResizeObserver(sendHeight).observe(document.body);
-    } else {
-        setInterval(sendHeight, 500);
-    }
+        window.addEventListener("load", sendHeight);
+        window.addEventListener("resize", sendHeight);
+
+        // Event-driven instead of a polling timer: reading scrollHeight forces
+        // a layout, and doing it on an interval reflowed the page twice a
+        // second for as long as it stayed open.
+        if (window.ResizeObserver) {
+            new ResizeObserver(sendHeight).observe(document.body);
+        } else {
+            setInterval(sendHeight, 500);
+        }
+    }());
 </script>
 {% endblock %}

@@ -1,23 +1,57 @@
-<!DOCTYPE html>
+{% load static %}{% load i18n %}{% load django_bootstrap5 %}<!DOCTYPE html>
 <html lang="sr-Cyrl" data-script="cyr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load django_bootstrap5 %}
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    {% bootstrap_messages %}
-    {% load i18n %}
-    {% load static %}
-    {% include 'partials/navbar.html' %}
-    <link rel="stylesheet" href="{% static 'css/overwrittes.css' %}">
-
     <title>{% block title %}Калеидоскоп{% endblock %}</title>
+
+    {# Stamp the visitor's stored preferences before the first paint, so the
+       page never renders in one theme and snaps to another. The same script
+       marks an embedded page, which stops the navbar flashing into view and
+       then being hidden once scripts have run. #}
+    <script>
+        (function () {
+            var d = document.documentElement;
+            try {
+                var t = localStorage.getItem('kg-theme');
+                if (t === 'dark' || t === 'light') {
+                    d.setAttribute('data-theme', t);
+                    d.setAttribute('data-bs-theme', t);
+                }
+                var s = localStorage.getItem('kg-script');
+                if (s === 'lat') {
+                    d.setAttribute('data-script', 'lat');
+                    d.setAttribute('lang', 'sr-Latn');
+                }
+            } catch (e) { }
+            if (window.top !== window.self) { d.classList.add('kg-embedded'); }
+        }());
+    </script>
+
+    {# Bootstrap is vendored rather than fetched from a CDN: no third-party
+       request from a page embedded on klubgacana.com, and the app keeps
+       working if the CDN is unreachable. See vendor/bootstrap/README.txt. #}
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+
+    {% if embed_parent_origin %}
+    <script>window.KG_ALLOWED_ORIGINS = ["{{ embed_parent_origin|escapejs }}"];</script>
+    {% endif %}
+
     {% block extra_head %}{% endblock %}
 </head>
 
-<div class="container">  
-    {% block content %}{% endblock %}
+<body>
+    {% include 'partials/navbar.html' %}
+
+    <div class="container">
+        {% bootstrap_messages %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/site.js' %}"></script>
     {% block scripts %}{% endblock %}
-  </div>
+</body>
 </html>
