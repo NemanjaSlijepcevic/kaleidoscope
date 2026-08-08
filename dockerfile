@@ -57,5 +57,6 @@ ENV DJANGO_SETTINGS_MODULE=kaleidoscope.settings
 
 EXPOSE 8000
 
-CMD python manage.py collectstatic --noinput && \
+CMD python manage.py migrate --fake-initial --noinput && \
+    python manage.py collectstatic --noinput && \
     gunicorn --bind 0.0.0.0:8000 --workers 3 kaleidoscope.wsgi:application

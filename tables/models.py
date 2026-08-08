@@ -6,21 +6,43 @@ from imagekit.processors import ResizeToFill, ResizeToFit, Transpose
 from .imagekit_processors import TextWatermark
 
 
-class Author(models.Model):
+from .search import fold, sort_key
+
+
+class SearchKeyMixin(models.Model):
+
+    search_key = models.CharField(max_length=200, blank=True, default="", editable=False)
+    sort_key = models.CharField(max_length=200, blank=True, default="", editable=False,
+                                db_index=True)
+
+    #: attribute this model normalises
+    SEARCH_SOURCE = "name"
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        source = getattr(self, self.SEARCH_SOURCE, "")
+        self.search_key = fold(source)
+        self.sort_key = sort_key(source)
+        super().save(*args, **kwargs)
+
+
+class Author(SearchKeyMixin):
     name = models.CharField(max_length=80, unique=True)
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('sort_key',)
 
     def __str__(self):
         return self.name
 
 
-class Place(models.Model):
+class Place(SearchKeyMixin):
     name = models.CharField(max_length=80, unique=True)
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('sort_key',)
 
     def __str__(self):
         return self.name
@@ -36,17 +58,19 @@ class Year(models.Model):
         return str(self.name)
 
 
-class Category(models.Model):
+class Category(SearchKeyMixin):
     name = models.CharField(max_length=80, unique=True)
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('sort_key',)
 
     def __str__(self):
         return self.name
 
 
-class Image(models.Model):
+class Image(SearchKeyMixin):
+    SEARCH_SOURCE = "title"
+
     author = models.ManyToManyField(Author, blank=True, db_index=True)
     title = models.CharField(max_length=80)
     description = models.TextField(blank=True)
@@ -83,7 +107,7 @@ class Image(models.Model):
     )
 
     class Meta:
-        ordering = ('author__name', 'title')
+        ordering = ('author__sort_key', 'sort_key')
 
     def __str__(self):
         author_names = ', '.join([author.name for author in self.author.all()][:3])

@@ -21,6 +21,7 @@ from .models import (
     Place,
     Year
 )
+from .search import fold
 from dal import autocomplete
 from .utils import user_in_group
 
@@ -39,7 +40,14 @@ class ModelAutocomplete(autocomplete.Select2QuerySetView):
         qs = self.model.objects.all()
 
         if self.q:
-            qs = qs.filter(name__istartswith=self.q)
+            # Same normalisation as the gallery search, so typing an author in
+            # Latin or in lower-case Cyrillic finds them. Year has no
+            # normalised copy - it stores an integer - so it keeps the plain
+            # lookup, which is fine for digits.
+            if hasattr(self.model, "search_key"):
+                qs = qs.filter(search_key__startswith=fold(self.q))
+            else:
+                qs = qs.filter(name__istartswith=self.q)
         return qs
 
 
@@ -134,13 +142,19 @@ class ImageListView(ListView):
         category_filters = self.request.GET.getlist("category")
 
         if search_text:
-            queryset = queryset.filter(
-                Q(title__icontains=search_text) |
-                Q(author__name__icontains=search_text) |
-                Q(category__name__icontains=search_text) |
-                Q(place__name__icontains=search_text) |
-                Q(year__name__icontains=search_text)
-            ).distinct()
+            # Match on the normalised copies rather than the stored text, so a
+            # Cyrillic query is case-insensitive, a Latin query finds Cyrillic
+            # records, and њ matches н + ј. tables/search.py explains it.
+            key = fold(search_text)
+            if key:
+                queryset = queryset.filter(
+                    Q(search_key__contains=key) |
+                    Q(author__search_key__contains=key) |
+                    Q(category__search_key__contains=key) |
+                    Q(place__search_key__contains=key) |
+                    # Years are digits, which need no folding.
+                    Q(year__name__icontains=search_text)
+                ).distinct()
 
         if author_filter:
             queryset = queryset.filter(author__id=author_filter)
@@ -160,13 +174,16 @@ class ImageListView(ListView):
 
         sort_column = self.request.GET.get("sort", "id")
         order = self.request.GET.get("order", "asc")
+        # Sort on the collation keys, not the stored text. SQLite orders by
+        # code point, which puts the six letters Serbian adds to the Cyrillic
+        # alphabet ahead of А. See sort_key() in tables/search.py.
         sort_mapping = {
             "id": "id",
-            "author": "author__name",
-            "title": "title",
-            "place": "place__name",
+            "author": "author__sort_key",
+            "title": "sort_key",
+            "place": "place__sort_key",
             "year": "year__name",
-            "category": "category__name"
+            "category": "category__sort_key"
         }
 
         if sort_column in sort_mapping:
