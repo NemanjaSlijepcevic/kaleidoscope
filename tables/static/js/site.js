@@ -220,15 +220,41 @@
         catch (e) { return null; }
     }
 
-    function broadcast() {
-        var frames = document.querySelectorAll('iframe');
+    function postTo(frame) {
+        var origin = frameOrigin(frame);
+        /* Never post to "*" — that would leak preferences to any third party
+         * the page happens to embed. */
+        if (!origin || !frame.contentWindow) { return; }
         var payload = { type: MSG, theme: currentTheme(), script: currentScript() };
-        Array.prototype.forEach.call(frames, function (f) {
-            var origin = frameOrigin(f);
-            /* Never post to "*" — that would leak preferences to any third
-             * party the page happens to embed. */
-            if (!origin || !f.contentWindow) { return; }
-            try { f.contentWindow.postMessage(payload, origin); } catch (e) { /* ignore */ }
+        try { frame.contentWindow.postMessage(payload, origin); } catch (e) { /* ignore */ }
+    }
+
+    function broadcast() {
+        watchFrames();
+        Array.prototype.forEach.call(document.querySelectorAll('iframe'), postTo);
+    }
+
+    /* An embedded app is a separate origin, so it has its own localStorage and
+     * cannot see the choice made out here — left alone it falls back to the
+     * visitor's OS setting, which is how a light page ended up framing a dark
+     * one. It only learns the real preference from the message below.
+     *
+     * Broadcasting once at startup is not enough: at that point the frames have
+     * usually not finished loading and a message posted into a blank frame is
+     * simply lost. Re-post as each one loads, which is the first moment its
+     * listener actually exists. */
+    function watchFrames() {
+        Array.prototype.forEach.call(document.querySelectorAll('iframe'), function (f) {
+            if (f.__kgWatched) { return; }
+            f.__kgWatched = true;
+            f.addEventListener('load', function () { postTo(f); });
+            /* Already loaded before this ran (cache, bfcache) — the load event
+             * will not fire again, so send now. */
+            try {
+                if (f.contentDocument && f.contentDocument.readyState === 'complete') {
+                    postTo(f);
+                }
+            } catch (e) { /* cross-origin: the load listener covers it */ }
         });
     }
 
@@ -262,6 +288,7 @@
         setScript(currentScript(), { silent: true });
         setTheme(currentTheme(), { silent: true });
         observe();
+        watchFrames();
         broadcast();
 
         document.addEventListener('click', function (e) {

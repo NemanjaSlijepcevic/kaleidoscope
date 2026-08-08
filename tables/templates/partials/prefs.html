@@ -1,10 +1,4 @@
 {% load i18n %}
-{# Same markup and behaviour as the Ghost theme's partials/prefs-toggles.hbs.
-   site.js binds these by delegation on the data-kg-*-toggle attributes, so the
-   two implementations stay interchangeable.
-
-   Hidden inside an iframe (see .kg-embedded in theme.css) because the Ghost
-   page supplies the only pair of toggles a visitor should see. #}
 <div class="kg-prefs">
     <button class="kg-prefs-btn kg-script-btn" type="button"
             data-kg-script-toggle aria-pressed="false"
