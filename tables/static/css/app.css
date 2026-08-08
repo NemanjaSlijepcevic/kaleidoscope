@@ -10,12 +10,14 @@
     --photo-scrim-strong: rgba(8, 10, 14, 0.8);
 }
 
+/* Same !important reasoning as the spinner: the grid carries Bootstrap's row
+ * utilities, whose display rules are !important and would otherwise win. */
 #image-gallery {
-    display: flex;
+    display: flex !important;
 }
 
 #image-gallery.loading {
-    display: none;
+    display: none !important;
 }
 
 /* --- cards -------------------------------------------------------------- */

@@ -30,12 +30,6 @@
     src: url('../fonts/SourceSans3-Italic.woff2') format('woff2');
 }
 
-/* --- three theme states -------------------------------------------------
- * A viewer has three, not two: an explicit choice stamps data-theme, and the
- * default "system" setting stamps nothing, where only prefers-color-scheme
- * separates light from dark. Never give a colour its only definition inside a
- * media or [data-theme] block. */
-
 :root {
     --stone: #E9EBE6;
     --surface: #F5F6F2;
@@ -104,11 +98,6 @@
 
     --on-accent: #12151A;
 }
-
-/* --- Bootstrap bridge ---------------------------------------------------
- * Re-point Bootstrap's variables at the tokens above rather than fighting its
- * component rules. One mapping makes the whole framework follow the palette,
- * in both themes, without overriding a single component. */
 
 :root,
 :root[data-bs-theme="light"],
@@ -431,6 +420,11 @@ table thead th,
 }
 
 .kg-pagerow {
+    /* One control size for the whole row, so the per-page select and the page
+     * links are built to identical boxes rather than each inheriting its own. */
+    --kg-control-size: 1rem;
+    --kg-control-pad-y: 0.375rem;
+
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -438,21 +432,43 @@ table thead th,
     padding: 0.75rem 0;
 }
 
+/* Bootstrap's .pagination sets display and list-style but never resets the
+ * bottom margin Reboot puts on every ul. The list therefore carries a 1rem
+ * margin below it, and align-items:center centres that taller outer box —
+ * lifting the page numbers and leaving the select looking dropped. */
+.kg-pagerow .pagination {
+    margin-bottom: 0;
+}
+
+/* Give both controls the same type size and line box. .page-link sets no
+ * line-height, so it inherits the body's 1.7 — right for reading, too tall for
+ * a control, and taller than the select's 1.5. That difference alone made the
+ * select look smaller and misaligned. */
+.kg-pagerow .form-select,
+.kg-pagerow .page-link {
+    font-size: var(--kg-control-size);
+    line-height: 1.5;
+    padding-top: var(--kg-control-pad-y);
+    padding-bottom: var(--kg-control-pad-y);
+}
+
 .kg-pagerow .form-select {
     width: auto;
-    font-size: 0.85rem;
 }
 
 /* ===========================================================================
  * Spinner
  * ======================================================================== */
 
+/* The markup carries both class="d-flex" and an inline style="display:none",
+ * and Bootstrap's .d-flex is display:flex !important - so plain rules here lose
+ * and the spinner shows permanently. !important is the only thing that wins. */
 #loading-spinner {
-    display: none;
+    display: none !important;
 }
 
 #loading-spinner.loading {
-    display: flex;
+    display: flex !important;
 }
 
 .spinner-border {
