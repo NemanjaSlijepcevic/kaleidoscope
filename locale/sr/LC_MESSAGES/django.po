@@ -16,8 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: .\core\forms.py:14
 msgid "Can Add"
@@ -136,7 +135,6 @@ msgid "Write the capture year ..."
 msgstr "Унеси годину настанка слике..."
 
 #: .\tables\forms.py:58
-#, fuzzy
 #| msgid "Write the place of image capture..."
 msgid "Write the image categories..."
 msgstr "Унеси области које слика покрива..."
@@ -233,6 +231,38 @@ msgstr "Слика је успешно обрисана."
 msgid "Image not found"
 msgstr "Слика није нађена."
 
+#: tables/templates/partials/navbar.html:7
+msgid "Toggle navigation"
+msgstr "Прикажи навигацију"
+
+#: tables/templates/tables/*_form.html, core/templates/auth/user_form.html
+msgid "Close"
+msgstr "Затвори"
+
+#: tables/templates/tables/*_list.html
+msgid "Loading"
+msgstr "Учитавање"
+
+#: tables/templates/tables/*_form.html, core/templates/auth/user_form.html
+msgid "Deleting failed. Please try again."
+msgstr "Брисање није успело. Покушајте поново."
+
+#: tables/templates/tables/image_list.html
+msgid "No images found"
+msgstr "Нема пронађених слика"
+
+#: tables/templates/tables/image_list.html
+msgid "Previous image"
+msgstr "Претходна слика"
+
+#: tables/templates/tables/image_list.html
+msgid "Next image"
+msgstr "Следећа слика"
+
+#: tables/templates/partials/pagination.html:3
+msgid "Page navigation"
+msgstr "Навигација страницама"
+
 #~ msgid "Check"
 #~ msgstr "Провера"
 
@@ -245,8 +275,7 @@ msgstr "Слика није нађена."
 #~ msgid "Check if Book Exists"
 #~ msgstr "Провери да ли књига постоји."
 
-#~ msgid ""
-#~ "A book with the title already exists for one of the selected authors."
+#~ msgid "A book with the title already exists for one of the selected authors."
 #~ msgstr "Књига са овим насловом већ постоји код једног од поменутих аутора."
 
 #~ msgid "Filters"

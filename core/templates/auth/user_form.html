@@ -23,14 +23,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">{% trans 'Confirm delete' %}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
             </div>
             <div class="modal-body">
                 {% blocktrans %}Are you sure you want to delete {% endblocktrans %} "{{object.title}}"?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'No' %}</button>
-                <button type="button" id="confirmDelete" class="btn btn-danger">{% trans 'Yes' %}</button>
+                <button type="button" id="confirmDelete" data-fail-text="{% trans 'Deleting failed. Please try again.' %}" class="btn btn-danger">{% trans 'Yes' %}</button>
             </div>
         </div>
     </div>
@@ -55,7 +55,7 @@
         })
         .catch(error => {
             console.error('Error deleting user:', error);
-            alert('Failed to delete the user. Please try again.');
+            alert(document.getElementById('confirmDelete').dataset.failText);
         });
     });
 </script>

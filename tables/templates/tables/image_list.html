@@ -8,7 +8,7 @@
     <div class="p-2">
         <form id="image-search-form" method="get" data-url="{% url 'images:image-list' %}">
             <label for="search-field" class="form-label h4">{% trans "Search" %}</label>
-            <input class="form-control mt-2" type="text" name="search-field" id="search-field" placeholder="{% trans 'Search images' %}" aria-label="default input example"/>
+            <input class="form-control mt-2" type="text" name="search-field" id="search-field" placeholder="{% trans 'Search images' %}" aria-label="{% trans 'Search images' %}"/>
         </form>
     </div>
     
@@ -65,22 +65,22 @@
 
 <div id="loading-spinner" class="d-flex justify-content-center" style="display: none;">
     <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...
+        <span class="visually-hidden">{% trans "Loading" %}</span>
     </div>
 </div>
 
 {% include 'partials/pagination.html' %}
 
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3" id="image-gallery"></div>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3" id="image-gallery" data-empty-text="{% trans 'No images found' %}"></div>
 
 <div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content bg-transparent border-0">
             <div class="modal-body p-0 position-relative">
-                <button class="carousel-control-prev" type="button" id="lightboxPrev" aria-label="Previous image">
+                <button class="carousel-control-prev" type="button" id="lightboxPrev" aria-label="{% trans 'Previous image' %}">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 </button>
-                <button class="carousel-control-next" type="button" id="lightboxNext" aria-label="Next image">
+                <button class="carousel-control-next" type="button" id="lightboxNext" aria-label="{% trans 'Next image' %}">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 </button>
                 <img id="lightboxImage" class="img-fluid" alt="">

@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                 </div>
             `).join('')
-            : `<div class="col"><div class="alert alert-info mb-0">Слика није пронађена</div></div>`;
+            : `<div class="col"><div class="alert alert-info mb-0">${resultContainer.dataset.emptyText || ""}</div></div>`;
     }
 
     function showLightboxAt(index) {
