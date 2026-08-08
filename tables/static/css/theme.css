@@ -1,0 +1,540 @@
+@font-face {
+    font-family: 'Lora';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('../fonts/Lora.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Lora';
+    font-style: italic;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('../fonts/Lora-Italic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Source Sans 3';
+    font-style: normal;
+    font-weight: 200 900;
+    font-display: swap;
+    src: url('../fonts/SourceSans3.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Source Sans 3';
+    font-style: italic;
+    font-weight: 200 900;
+    font-display: swap;
+    src: url('../fonts/SourceSans3-Italic.woff2') format('woff2');
+}
+
+/* --- three theme states -------------------------------------------------
+ * A viewer has three, not two: an explicit choice stamps data-theme, and the
+ * default "system" setting stamps nothing, where only prefers-color-scheme
+ * separates light from dark. Never give a colour its only definition inside a
+ * media or [data-theme] block. */
+
+:root {
+    --stone: #E9EBE6;
+    --surface: #F5F6F2;
+    --surface-sunk: #DFE2DC;
+
+    --ink: #151A24;
+    --ink-muted: #5A6472;
+    --ink-faint: #616A77;
+
+    --accent: #25407F;
+    --accent-soft: #E2E6F1;
+    --ember: #B8332A;
+    --brass: #7B6830;
+
+    --rule: #C6CBC2;
+    --rule-strong: #9BA298;
+
+    /* Fixed pair for contexts that are dark in both themes — a photograph
+     * behind text, the lightbox scrim. */
+    --on-dark: #F5F6F2;
+    --on-dark-muted: #C3C8CF;
+    --on-accent: #F5F6F2;
+
+    --font-serif: 'Lora', Georgia, Times, serif;
+    --font-sans: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --stone: #12151A;
+        --surface: #191D25;
+        --surface-sunk: #0C0F13;
+
+        --ink: #E4E6E1;
+        --ink-muted: #A2ABB8;
+        --ink-faint: #7B8592;
+
+        --accent: #8AA5E6;
+        --accent-soft: #1E2635;
+        --ember: #E8756A;
+        --brass: #C7AC62;
+
+        --rule: #2E353F;
+        --rule-strong: #454E5A;
+
+        --on-accent: #12151A;
+    }
+}
+
+:root[data-theme="dark"] {
+    --stone: #12151A;
+    --surface: #191D25;
+    --surface-sunk: #0C0F13;
+
+    --ink: #E4E6E1;
+    --ink-muted: #A2ABB8;
+    --ink-faint: #7B8592;
+
+    --accent: #8AA5E6;
+    --accent-soft: #1E2635;
+    --ember: #E8756A;
+    --brass: #C7AC62;
+
+    --rule: #2E353F;
+    --rule-strong: #454E5A;
+
+    --on-accent: #12151A;
+}
+
+/* --- Bootstrap bridge ---------------------------------------------------
+ * Re-point Bootstrap's variables at the tokens above rather than fighting its
+ * component rules. One mapping makes the whole framework follow the palette,
+ * in both themes, without overriding a single component. */
+
+:root,
+:root[data-bs-theme="light"],
+:root[data-bs-theme="dark"] {
+    --bs-body-bg: var(--stone);
+    --bs-body-color: var(--ink);
+    --bs-emphasis-color: var(--ink);
+    --bs-secondary-color: var(--ink-muted);
+    --bs-secondary-bg: var(--surface-sunk);
+    --bs-tertiary-bg: var(--surface);
+    --bs-tertiary-color: var(--ink-muted);
+    --bs-border-color: var(--rule);
+    --bs-border-color-translucent: var(--rule);
+
+    --bs-primary: var(--accent);
+    --bs-primary-rgb: 37, 64, 127;
+    --bs-link-color: var(--accent);
+    --bs-link-hover-color: var(--ember);
+    --bs-danger: var(--ember);
+
+    --bs-heading-color: var(--ink);
+    --bs-body-font-family: var(--font-serif);
+    --bs-body-font-size: 1.0625rem;
+    --bs-body-line-height: 1.7;
+    --bs-border-radius: 0;
+    --bs-border-radius-sm: 0;
+    --bs-border-radius-lg: 0;
+
+    --bs-focus-ring-color: var(--accent-soft);
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--ink);
+    --bs-table-border-color: var(--rule);
+    --bs-table-hover-bg: var(--accent-soft);
+    --bs-table-hover-color: var(--ink);
+}
+
+/* ===========================================================================
+ * Typography
+ * ======================================================================== */
+
+body {
+    font-family: var(--font-serif);
+    background-color: var(--stone);
+    color: var(--ink);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+}
+
+/* Interface furniture stays in the sans — Serbian set in a serif at control
+ * sizes loses too much. */
+.navbar,
+.btn,
+.form-label,
+.form-control,
+.form-select,
+.pagination,
+.kg-meta,
+table thead th,
+.kg-prefs {
+    font-family: var(--font-sans);
+}
+
+/* lang="sr-Cyrl" on <html> is what lets the browser apply the fonts' Serbian
+ * localized forms for italic б г д п т. Stated explicitly so it survives an
+ * editor nesting a lang attribute inside content. */
+:lang(sr-Cyrl),
+:lang(sr) {
+    font-feature-settings: "kern" 1, "liga" 1, "locl" 1;
+}
+
+/* ===========================================================================
+ * Header preference controls — same markup and behaviour as the Ghost theme
+ * ======================================================================== */
+
+.kg-prefs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.kg-prefs-btn {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 4px 9px;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--ink);
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-radius: 2px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.kg-prefs-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.kg-script-cyr {
+    color: var(--accent);
+}
+
+.kg-script-lat,
+.kg-script-sep {
+    color: var(--ink-faint);
+}
+
+:root[data-script="lat"] .kg-script-cyr {
+    color: var(--ink-faint);
+}
+
+:root[data-script="lat"] .kg-script-lat {
+    color: var(--accent);
+}
+
+.kg-icon-sun {
+    display: none;
+}
+
+:root[data-theme="dark"] .kg-icon-moon {
+    display: none;
+}
+
+:root[data-theme="dark"] .kg-icon-sun {
+    display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .kg-icon-moon {
+        display: none;
+    }
+
+    :root:not([data-theme="light"]) .kg-icon-sun {
+        display: block;
+    }
+}
+
+:root[data-theme="light"] .kg-icon-moon {
+    display: block;
+}
+
+:root[data-theme="light"] .kg-icon-sun {
+    display: none;
+}
+
+/* ===========================================================================
+ * Embedded mode
+ *
+ * Both apps are iframed into Ghost pages, which already provide the header,
+ * navigation and footer. Inside a frame the app shows content only.
+ * The class is stamped by the inline script in base.html before first paint,
+ * so the navbar never flashes into view and then disappears.
+ * ======================================================================== */
+
+.kg-embedded .navbar,
+.kg-embedded .kg-prefs {
+    display: none !important;
+}
+
+.kg-embedded body,
+.kg-embedded .container {
+    padding-top: 0;
+    background: transparent;
+}
+
+.kg-embedded .kg-toolbar {
+    margin-top: 0;
+}
+
+/* ===========================================================================
+ * Navbar (standalone only)
+ * ======================================================================== */
+
+.navbar {
+    margin-bottom: 2.5rem;
+    background-color: var(--stone) !important;
+    border-bottom: 1px solid var(--rule);
+}
+
+.navbar .navbar-brand {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+}
+
+.navbar .navbar-text,
+.navbar .nav-link {
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+}
+
+.navbar .btn {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-radius: 2px;
+}
+
+.navbar .btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: transparent;
+}
+
+/* ===========================================================================
+ * Toolbar: search and filters
+ *
+ * Replaces the rounded, shaded "bg-body-tertiary rounded border" panel with a
+ * plate bounded by rules.
+ * ======================================================================== */
+
+.kg-toolbar {
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+}
+
+.kg-toolbar .form-label {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.4rem;
+}
+
+.form-control,
+.form-select {
+    background-color: var(--stone);
+    border: 1px solid var(--rule-strong);
+    border-radius: 0;
+    color: var(--ink);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--stone);
+    border-color: var(--accent);
+    color: var(--ink);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-control::placeholder {
+    color: var(--ink-faint);
+}
+
+.form-check-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.form-check-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-check-label {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+}
+
+/* Accordion holding the category filter */
+.accordion {
+    --bs-accordion-bg: transparent;
+    --bs-accordion-border-color: var(--rule);
+    --bs-accordion-btn-bg: transparent;
+    --bs-accordion-active-bg: transparent;
+    --bs-accordion-active-color: var(--accent);
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 3px var(--accent-soft);
+    --bs-accordion-border-radius: 0;
+    --bs-accordion-inner-border-radius: 0;
+}
+
+.accordion-button {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+}
+
+/* ===========================================================================
+ * Pagination
+ * ======================================================================== */
+
+.pagination {
+    --bs-pagination-bg: transparent;
+    --bs-pagination-color: var(--ink);
+    --bs-pagination-border-color: var(--rule-strong);
+    --bs-pagination-hover-bg: var(--accent-soft);
+    --bs-pagination-hover-color: var(--accent);
+    --bs-pagination-hover-border-color: var(--accent);
+    --bs-pagination-active-bg: var(--ink);
+    --bs-pagination-active-border-color: var(--ink);
+    --bs-pagination-active-color: var(--stone);
+    --bs-pagination-disabled-bg: transparent;
+    --bs-pagination-disabled-color: var(--ink-faint);
+    --bs-pagination-disabled-border-color: var(--rule);
+    --bs-pagination-border-radius: 0;
+    --bs-pagination-focus-box-shadow: 0 0 0 3px var(--accent-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+.kg-pagerow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.75rem 0;
+}
+
+.kg-pagerow .form-select {
+    width: auto;
+    font-size: 0.85rem;
+}
+
+/* ===========================================================================
+ * Spinner
+ * ======================================================================== */
+
+#loading-spinner {
+    display: none;
+}
+
+#loading-spinner.loading {
+    display: flex;
+}
+
+.spinner-border {
+    color: var(--accent) !important;
+}
+
+/* ===========================================================================
+ * select2 (django-autocomplete-light), used on the edit forms
+ * ======================================================================== */
+
+.select2-container {
+    width: 100% !important;
+    max-width: 600px;
+}
+
+.select2-container--default .select2-selection {
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 6px 12px;
+    background-color: var(--stone);
+    border: 1px solid var(--rule-strong);
+    border-radius: 0;
+    color: var(--ink);
+}
+
+.select2-container--default .select2-selection__rendered {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+    padding: 0;
+    color: var(--ink);
+}
+
+.select2-container--default .select2-selection__arrow {
+    display: none;
+}
+
+.select2-container--default .select2-selection__choice {
+    background-color: var(--accent-soft);
+    border: 1px solid var(--rule-strong);
+    border-radius: 0;
+    color: var(--ink);
+}
+
+.select2-dropdown {
+    background-color: var(--surface);
+    border-color: var(--rule-strong);
+    border-radius: 0;
+    color: var(--ink);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--accent);
+    color: var(--on-accent);
+}
+
+.select2-search__field {
+    background-color: var(--stone);
+    color: var(--ink);
+}
+
+/* ===========================================================================
+ * Focus and motion
+ * ======================================================================== */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

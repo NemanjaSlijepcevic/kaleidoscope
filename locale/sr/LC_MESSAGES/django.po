@@ -263,6 +263,10 @@ msgstr "Следећа слика"
 msgid "Page navigation"
 msgstr "Навигација страницама"
 
+#: tables/templates/partials/prefs.html:20
+msgid "Dark mode"
+msgstr "Тамни режим"
+
 #~ msgid "Check"
 #~ msgstr "Провера"
 
