@@ -107,7 +107,11 @@ class Image(SearchKeyMixin):
     )
 
     class Meta:
-        ordering = ('author__sort_key', 'sort_key')
+        # Deliberately no author__sort_key: ordering across a many-to-many joins
+        # one row per author, so every image with two authors would be listed
+        # twice. ImageListView sorts by author on a Min() annotation instead,
+        # which groups rather than multiplies.
+        ordering = ('sort_key',)
 
     def __str__(self):
         author_names = ', '.join([author.name for author in self.author.all()][:3])

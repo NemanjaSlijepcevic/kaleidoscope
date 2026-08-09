@@ -4,20 +4,19 @@
 {% load i18n %}
 {% load permission_filters %}
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'css/form.css' %}">
     <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
   {{ form.media }}
 {% endblock %}
 {% block content %}
 <h4>{% if is_create %}{% trans "Create image" %}{% else %}{% trans "Edit image" %}{% endif %}</h4>
 <div class="pt-2">
-    <form method="POST" class="mb-3" enctype="multipart/form-data">
+    <form method="POST" class="kg-form mb-3" enctype="multipart/form-data">
         {% csrf_token %}
 
         {% for field in form %}
         <div class="field-wrapper">
-            <p><label for="{{ field.id_for_label }}"><b>{{ field.label }}</b></label></p>
-            <p>{{ field }}</p>
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
             {% if field.errors %}
             <div class="alert alert-danger">
                 {% for error in field.errors %}

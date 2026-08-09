@@ -20,23 +20,17 @@ class TextWatermark:
         target_height = image.height * getattr(settings, 'IMAGE_WATERMARK_SCALE', 0.5)
 
         # 2. Load font and scale it
-        # You may need to adjust the path to a .ttf file on your system
-        font_path = getattr(settings, 'WATERMARK_FONT_PATH',
-                            f"{settings.MEDIA_ROOT}/fonts/DejaVuSans-Bold.ttf")
+        font_path = settings.WATERMARK_FONT_PATH
 
         # Start with a default size and scale up/down to match target_height
         font_size = 1
         try:
             font = ImageFont.truetype(font_path, font_size)
         except OSError as exc:
-            # Failing here means every watermarked image silently 404s, and the
-            # cause ("cannot open resource") gives no hint which resource. Don't
-            # fall back to an unwatermarked image: the watermark is the reason
-            # originals aren't served in the first place.
             raise OSError(
-                f"Watermark font not found at {font_path!r}. The font lives under "
-                f"MEDIA_ROOT, which .dockerignore excludes, so a container needs "
-                f"either a mounted media/fonts/ or a WATERMARK_FONT_PATH override."
+                f"Watermark font not found at {font_path!r}. It ships in the "
+                f"image under assets/fonts/; set WATERMARK_FONT_PATH to point "
+                f"somewhere else."
             ) from exc
 
         # Quickly approximate the correct font size

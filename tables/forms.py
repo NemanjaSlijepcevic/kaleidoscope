@@ -22,10 +22,15 @@ class ImageForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(
                 attrs={
+                    'class': 'form-control',
                     'placeholder': _('Enter the image title...')
                 },
             ),
-            'image': forms.ClearableFileInput(),
+            'image': forms.ClearableFileInput(
+                attrs={
+                    'class': 'form-control'
+                },
+            ),
             'description': forms.Textarea(
                 attrs={
                     'placeholder': _('Enter a description...'),
@@ -37,24 +42,28 @@ class ImageForm(forms.ModelForm):
             'author': autocomplete.ModelSelect2Multiple(
                 url='images:author-autocomplete',
                 attrs={
+                    'class': 'form-select',
                     'data-placeholder': _('Write names of image authors...')
                 },
             ),
             'place': autocomplete.ModelSelect2(
                 url='images:place-autocomplete',
                 attrs={
+                    'class': 'form-select',
                     'data-placeholder': _('Write the place of image capture...')
                 },
             ),
             'year': autocomplete.ModelSelect2(
                 url='images:year-autocomplete',
                 attrs={
+                    'class': 'form-select',
                     'data-placeholder': _('Write the capture year ...')
                 },
             ),
             'category': autocomplete.ModelSelect2Multiple(
                 url='images:category-autocomplete',
                 attrs={
+                    'class': 'form-select',
                     'data-placeholder': _('Write the image categories...')
                 },
             ),

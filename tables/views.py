@@ -1,5 +1,5 @@
 from django.urls import reverse, reverse_lazy
-from django.db.models import Q, Prefetch
+from django.db.models import F, Min, Q, Prefetch
 from django.http import Http404, JsonResponse, HttpRequest, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
@@ -112,15 +112,6 @@ class ImageDeleteView(LoginRequiredMixin, UserPassesGroupTest, DeleteView):
 
 
 class ImageWatermarkedView(View):
-    """Redirect to an image's watermarked derivative.
-
-    The lightbox points here instead of straight at the derived file so that the
-    expensive full-size render happens only for images a user actually opens,
-    and so a derivative that is missing for any reason is generated on the spot
-    rather than 404ing. Only ever exposes the watermarked version — the original
-    upload stays unreachable.
-    """
-
     def get(self, request, pk):
         image = get_object_or_404(Image, pk=pk)
         if not image.image:
@@ -174,23 +165,27 @@ class ImageListView(ListView):
 
         sort_column = self.request.GET.get("sort", "id")
         order = self.request.GET.get("order", "asc")
-        # Sort on the collation keys, not the stored text. SQLite orders by
-        # code point, which puts the six letters Serbian adds to the Cyrillic
-        # alphabet ahead of А. See sort_key() in tables/search.py.
+        queryset = queryset.annotate(
+            author_sort=Min('author__sort_key'),
+            category_sort=Min('category__sort_key'),
+        )
         sort_mapping = {
             "id": "id",
-            "author": "author__sort_key",
+            "author": "author_sort",
             "title": "sort_key",
             "place": "place__sort_key",
             "year": "year__name",
-            "category": "category__sort_key"
+            "category": "category_sort"
         }
 
         if sort_column in sort_mapping:
-            sort_field = sort_mapping[sort_column]
+            sort_field = F(sort_mapping[sort_column])
+            # An image with no author or no year must not lead the list on the
+            # strength of a NULL, which is where SQLite puts it by default.
             if order == "desc":
-                sort_field = f"-{sort_field}"
-            queryset = queryset.order_by(sort_field)
+                queryset = queryset.order_by(sort_field.desc(nulls_last=True))
+            else:
+                queryset = queryset.order_by(sort_field.asc(nulls_last=True))
 
         queryset = queryset.prefetch_related(
             Prefetch('author', queryset=Author.objects.only('name')),
@@ -218,10 +213,6 @@ class ImageListView(ListView):
                 {
                     "id": image.pk,
                     "title": image.title,
-                    # A redirect endpoint rather than the derived file's URL:
-                    # touching image.watermarked.url here would resolve — and,
-                    # if missing, render — a full-size watermark for every card
-                    # on the page, when at most one is ever opened.
                     "image_url": (
                         reverse("images:image-watermarked", args=[image.pk])
                         if image.image else ""
