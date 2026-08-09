@@ -35,7 +35,4 @@ data/
 logs/
 *.log
 media/
-# ...but the watermark font lives here and is required to render any watermarked
-# image, so it has to stay in the image even when no media volume is mounted.
-!media/fonts/
 staticfiles/
